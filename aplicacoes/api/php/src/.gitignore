@@ -1,0 +1,10 @@
+# Ignore data storage
+data/
+
+# Composer vendor directory
+vendor/
+
+# Environment files
+.env
+.env.*
+!.env.example

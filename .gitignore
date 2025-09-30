@@ -1,0 +1,10 @@
+# Global ignores for the monorepo
+
+# Data and vendor directories (any depth)
+data/
+vendor/
+
+# Environment files
+.env
+.env.*
+!.env.example
