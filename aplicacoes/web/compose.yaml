@@ -11,7 +11,7 @@ services:
   nginx:
     image: nginx:1.25-alpine
     ports:
-      - "80:80"
+      - "8080:80" # ALTERAÇÃO: a porta 80 é a porta Default para a página Servidor Apache. Para evitar conflitos, eu alterei.
     volumes:
       - ./src:/var/www/html
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
