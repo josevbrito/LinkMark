@@ -14,7 +14,7 @@ services:
       DB_USER: linkmark_api
       DB_PASSWORD: linkmark
       DB_NAME: linkmark
-      FRONTEND_URL: http://localhost:80
+      FRONTEND_URL: http://localhost:8080 # ALTERAÇÃO: a porta 80 é a porta Default para a página Servidor Apache. Para evitar conflitos, eu alterei.
     depends_on:
       - mysql
     networks:

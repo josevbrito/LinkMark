@@ -3,7 +3,7 @@ import cors from 'cors';
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:80';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:8080';
 
 app.use(cors({origin: FRONTEND_URL, credentials: true}));
 app.use(express.json());
