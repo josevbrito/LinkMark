@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinkMark - Organize seus links</title>
+    <link rel="stylesheet" href="/assets/css/app.css"/>
 </head>
 <body>
     <!-- Header com informações do usuário -->
@@ -212,6 +213,26 @@
         </div>
     </div>
 
+    <!-- Modal Confirmar Logout -->
+    <div id="confirmLogoutModal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirmar Saída</h3>
+                <p class="modal-subtitle">Deseja realmente sair da sua conta?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('confirmLogoutModal')">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmLogoutBtn">
+                    Sair
+                </button>
+            </div>
+        </div>
+    </div>
+
+    </script>
+    <script src="/assets/js/app.js"></script>
 
 </body>
 </html>
