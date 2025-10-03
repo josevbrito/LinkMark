@@ -461,6 +461,26 @@ function openEditLink(id) {
     openModal('editLinkModal');
 }
 
+
+/**
+ * Abre modal de confirmação de logout
+ */
+function confirmLogout() {
+    openModal('confirmLogoutModal');
+}
+
+// Faz logout do usuário
+function logout() {
+    state.token = null;
+    state.user = null;
+    state.categories = [];
+    state.links = [];
+    el.authEmail.value = '';
+    el.authPassword.value = '';
+    closeModal('confirmLogoutModal');
+    showAuth();
+}
+
 /**
  * Processa o formulário de editar link
  * @param {Event} e
@@ -518,7 +538,12 @@ el.authToggleLink.addEventListener('click', (e) => {
     e.preventDefault();
     toggleAuthMode();
 });
-el.logoutBtn.addEventListener('click', logout);
+
+// Logout
+el.logoutBtn.addEventListener('click', confirmLogout);
+
+document.getElementById('confirmLogoutBtn').addEventListener('click', logout);
+
 
 // Categorias
 el.categoryForm.addEventListener('submit', handleCategorySubmit);
