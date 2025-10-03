@@ -1,93 +1,217 @@
-<?php
-$apiUrl = getenv('API_URL') ?: 'http://localhost:8000';
-?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>LinkMark</title>
-    <link rel="stylesheet" href="/assets/css/app.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkMark - Organize seus links</title>
 </head>
 <body>
-<header class="header">
-    <div class="logo"></div>
-    <div class="title">LinkMark · Web</div>
-    <div class="header-actions" id="headerActions" style="display: none;">
-        <span id="userEmail" class="user-email"></span>
-        <button id="logoutBtn" class="btn-logout">Sair</button>
-    </div>
-</header>
+    <!-- Header com informações do usuário -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">L</div>
+                <span class="brand">LinkMark</span>
+            </div>
+            <div class="user-info hidden" id="userInfo">
+                <span class="user-email" id="userEmail"></span>
+                <button class="btn btn-danger" id="logoutBtn">Sair</button>
+            </div>
+        </div>
+    </header>
 
-<div class="container">
-    <!-- Tela de Login/Registro -->
-    <div id="authScreen" class="auth-screen">
-        <div class="panel auth-panel">
-            <h2 id="authTitle">Entrar no LinkMark</h2>
+    <!-- Tela de autenticação (Login/Registro) -->
+    <div id="authScreen" class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 id="authTitle">Bem-vindo</h1>
+                <p id="authSubtitle">Entre para organizar seus links</p>
+            </div>
+            
             <form id="authForm">
-                <input type="email" id="authEmail" placeholder="E-mail" required autocomplete="email"/>
-                <input type="password" id="authPassword" placeholder="Senha (mín. 6 caracteres)" required minlength="6" autocomplete="current-password"/>
-                <button type="submit" id="authSubmitBtn">Entrar</button>
-                <div class="status" id="authStatus"></div>
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="authEmail" required autocomplete="email" placeholder="seu@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="authPassword" required minlength="6" autocomplete="current-password" placeholder="••••••••">
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block" id="authSubmitBtn">
+                    Entrar
+                </button>
+                
+                <div class="alert" id="authAlert"></div>
             </form>
-            <div class="auth-toggle">
+            
+            <div class="auth-link">
                 <span id="authToggleText">Não tem conta?</span>
                 <a href="#" id="authToggleLink">Criar conta</a>
             </div>
         </div>
     </div>
 
-    <!-- Tela Principal (App) -->
-    <div id="appScreen" style="display: none;">
-        <!-- Painel de Categorias -->
-        <div class="panel">
-            <h3>Categorias</h3>
-            <div class="row">
-                <input type="text" id="categoryInput" placeholder="Nome da categoria"/>
-                <button id="addCategoryBtn">Adicionar</button>
+    <!-- Tela principal do app -->
+    <div id="appScreen" class="container hidden">
+        <!-- Card de Categorias -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">📁 Categorias</h2>
             </div>
-            <div class="status" id="categoryStatus"></div>
-            <div class="list" id="categoriesList"></div>
+            
+            <form id="categoryForm" class="grid grid-2">
+                <input type="text" id="categoryInput" placeholder="Nome da categoria" required>
+                <button type="submit" class="btn btn-success">Adicionar Categoria</button>
+            </form>
+            
+            <div class="alert" id="categoryAlert"></div>
+            
+            <div class="items-list" id="categoriesList">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📁</div>
+                    <p>Nenhuma categoria ainda. Crie sua primeira!</p>
+                </div>
+            </div>
         </div>
 
-        <!-- Painel de Links -->
-        <div class="panel" style="margin-top: 16px;">
-            <h3>Links</h3>
-            <div class="form-group">
-                <select id="linkCategorySelect">
-                    <option value="">Selecione uma categoria</option>
-                </select>
+        <!-- Card de Links -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">🔗 Links</h2>
             </div>
-            <div class="form-group">
-                <input type="url" id="linkUrl" placeholder="URL do link"/>
-            </div>
-            <div class="row">
-                <input type="text" id="linkTitle" placeholder="Título (opcional)"/>
-                <input type="text" id="linkDescription" placeholder="Descrição (opcional)"/>
-            </div>
-            <button id="addLinkBtn" style="width: 100%; margin-top: 8px;">Adicionar Link</button>
-            <div class="status" id="linkStatus"></div>
-
-            <!-- Filtro de links -->
-            <div class="filter-section">
-                <label class="small">Filtrar por categoria:</label>
-                <select id="filterCategorySelect">
+            
+            <form id="linkForm">
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select id="linkCategory" required>
+                        <option value="">Selecione uma categoria</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>URL</label>
+                    <input type="url" id="linkUrl" placeholder="https://exemplo.com" required>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label>Título (opcional)</label>
+                        <input type="text" id="linkTitle" placeholder="Nome do link">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Descrição (opcional)</label>
+                        <input type="text" id="linkDescription" placeholder="Descrição breve">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-success btn-block">Adicionar Link</button>
+            </form>
+            
+            <div class="alert" id="linkAlert"></div>
+            
+            <div class="form-group" style="margin-top: 2rem;">
+                <label>Filtrar por categoria</label>
+                <select id="filterCategory">
                     <option value="">Todas as categorias</option>
                 </select>
             </div>
-
-            <div class="list" id="linksList"></div>
-        </div>
-
-        <div class="footer">
-            API URL: <code><?php echo htmlspecialchars($apiUrl, ENT_QUOTES); ?></code>
+            
+            <div class="items-list" id="linksList">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔗</div>
+                    <p>Nenhum link ainda. Adicione o primeiro!</p>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    window.__CONFIG__ = {API_URL: <?php echo json_encode($apiUrl); ?> };
-</script>
-<script src="/assets/js/app.js"></script>
+    <!-- Modal Editar Categoria -->
+    <div id="editCategoryModal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Editar Categoria</h3>
+                <p class="modal-subtitle">Altere o nome da categoria</p>
+            </div>
+            <form id="editCategoryForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Nome da Categoria</label>
+                        <input type="text" id="editCategoryName" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editCategoryModal')">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Editar Link -->
+    <div id="editLinkModal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Editar Link</h3>
+                <p class="modal-subtitle">Atualize as informações do link</p>
+            </div>
+            <form id="editLinkForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <select id="editLinkCategory" required>
+                            <option value="">Selecione uma categoria</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>URL</label>
+                        <input type="url" id="editLinkUrl" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Título (opcional)</label>
+                        <input type="text" id="editLinkTitle">
+                    </div>
+                    <div class="form-group">
+                        <label>Descrição (opcional)</label>
+                        <textarea id="editLinkDescription"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editLinkModal')">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Confirmar Exclusão -->
+    <div id="confirmDeleteModal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirmar Exclusão</h3>
+                <p class="modal-subtitle" id="deleteMessage">Tem certeza que deseja excluir?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('confirmDeleteModal')">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    Excluir
+                </button>
+            </div>
+        </div>
+    </div>
+
+
 </body>
 </html>
