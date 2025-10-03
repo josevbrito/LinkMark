@@ -8,6 +8,9 @@ import { sendResponse, authenticateToken } from './middlewares';
 import authRoutes from './routes/auth';
 import categoriesRoutes from './routes/categories';
 import linksRoutes from './routes/links';
+import statsRoutes from './routes/stats';
+import exportRoutes from './routes/export';
+
 
 // --- CONFIGURAÇÃO INICIAL ---
 const app = express();
@@ -92,8 +95,10 @@ app.use(authenticateToken);
 
 app.use('/categories', categoriesRoutes);
 app.use('/links', linksRoutes);
+app.use('/stats', statsRoutes);
+app.use('/export', exportRoutes);
 
-// Rota 404 Padrão (deve ser a última rota)
+// Rota 404 Padrão
 app.use((_req: Request, res: Response) => {
   (res as any).sendResponse(false, null, 'Not Found', 404);
 });
