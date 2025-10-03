@@ -60,7 +60,6 @@ body {
     overflow-x: hidden;
 }
 
-
 /* Header com efeito glass */
 .header {
     background: rgba(255, 255, 255, 0.03);
@@ -243,6 +242,8 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .card-title {
@@ -251,6 +252,115 @@ body {
     background: linear-gradient(135deg, #fff, #b8c5d6);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Força os emojis a terem cor */
+.card-title::first-letter,
+.stat-icon {
+    -webkit-text-fill-color: initial;
+    background: none;
+    filter: hue-rotate(0deg) saturate(1.5) brightness(1.2);
+}
+
+/* Estatísticas do usuário */
+.stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/*
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}*/
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.stat-card:hover::before {
+    opacity: 1;
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    /* animation: float 3s ease-in-out infinite; */
+    filter: none;
+    -webkit-text-fill-color: initial;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #3b82f6, #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.chart-bar {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.chart-bar:hover {
+    border-color: var(--accent);
+    transform: translateX(4px);
+}
+
+.chart-bar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.chart-bar-label {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.chart-bar-value {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.chart-bar-fill {
+    height: 8px;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    border-radius: 4px;
+    transition: width 0.8s ease;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
 }
 
 .form-group {
@@ -283,6 +393,23 @@ textarea {
     font-size: 0.9rem;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
+}
+
+/* Melhora contraste do select e com as opções */
+select {
+    cursor: pointer;
+}
+
+select option {
+    background: #1a2a3a;
+    color: var(--text-primary);
+    padding: 0.5rem;
+}
+
+select option:hover,
+select option:checked {
+    background: #2d3e4e;
+    color: var(--text-primary);
 }
 
 input:focus,
@@ -409,6 +536,11 @@ textarea {
     .grid-2 {
         grid-template-columns: 1fr;
     }
+    
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
 
 .items-list {
@@ -458,6 +590,7 @@ textarea {
     align-items: start;
     margin-bottom: 0.75rem;
     gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .item-title {
@@ -496,6 +629,7 @@ textarea {
     display: flex;
     gap: 0.5rem;
     flex-shrink: 0;
+    flex-wrap: wrap;
 }
 
 /* Badge com gradiente */
@@ -503,15 +637,15 @@ textarea {
     display: inline-flex;
     align-items: center;
     padding: 0.35rem 0.875rem;
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(96, 165, 250, 0.2));
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    background: linear-gradient(135deg, rgba(112, 246, 59, 0.2), rgba(109, 250, 96, 0.2));
+    border: 1px solid rgba(75, 246, 59, 0.3);
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 600;
-    color: #93c5fd;
+    color: #a5fd93;
 }
 
-/* Alertas*/
+/* Alertas */
 .alert {
     padding: 1rem 1.25rem;
     border-radius: 12px;
@@ -557,7 +691,7 @@ textarea {
 }
 
 .auth-link a:hover {
-    color: #22c55e;
+    color: #60a5fa;
     text-decoration: underline;
 }
 
@@ -572,6 +706,8 @@ textarea {
     margin-bottom: 1rem;
     opacity: 0.6;
     animation: float 3s ease-in-out infinite;
+    filter: none;
+    -webkit-text-fill-color: initial;
 }
 
 .hidden {
@@ -626,7 +762,7 @@ textarea {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
     animation: float 8s ease-in-out infinite;
 }
 
@@ -678,10 +814,10 @@ textarea {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #10b981, #22c55e);
+    background: linear-gradient(135deg, #3b82f6, #60a5fa);
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #059669, #16a34a);
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
 }

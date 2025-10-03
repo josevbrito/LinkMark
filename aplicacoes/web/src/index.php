@@ -56,6 +56,42 @@
 
     <!-- Tela principal do app -->
     <div id="appScreen" class="container hidden">
+        <!-- Dashboard de Estatísticas -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">📊 Dashboard</h2>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-success" id="exportCsvBtn">📥 Exportar CSV</button>
+                    <button class="btn btn-success" id="exportExcelBtn">📥 Exportar Excel</button>
+                </div>
+            </div>
+            
+            <div class="grid grid-2" style="margin-top: 1.5rem;">
+                <div class="stat-card">
+                    <div class="stat-icon">📁</div>
+                    <div class="stat-value" id="statCategories">0</div>
+                    <div class="stat-label">Categorias</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔗</div>
+                    <div class="stat-value" id="statLinks">0</div>
+                    <div class="stat-label">Links Salvos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-value" id="statPopular">-</div>
+                    <div class="stat-label">Categoria Mais Usada</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-value" id="statRecent">0</div>
+                    <div class="stat-label">Links esta Semana</div>
+                </div>
+            </div>
+            
+            <div id="categoryChart" style="margin-top: 2rem;"></div>
+        </div>
+
         <!-- Card de Categorias -->
         <div class="card">
             <div class="card-header">
@@ -231,8 +267,6 @@
         </div>
     </div>
 
-    </script>
     <script src="/assets/js/app.js"></script>
-
 </body>
 </html>
