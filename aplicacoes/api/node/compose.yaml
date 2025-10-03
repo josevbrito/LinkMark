@@ -7,7 +7,7 @@ services:
       - ./src:/home/node/app
     ports:
       - "8000:3000"
-    command: sh -c "npm install && npm run start:dev"
+    command: sh -c "npm install && sleep 10 && npm run start:dev" # Adicionei um sleep para garantir que o MySQL esteja pronto
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
@@ -15,14 +15,17 @@ services:
       DB_PASSWORD: linkmark
       DB_NAME: linkmark
       FRONTEND_URL: http://localhost:8080 # ALTERAÇÃO: a porta 80 é a porta Default para a página Servidor Apache. Para evitar conflitos, eu alterei.
+      JWT_SECRET: linkmark_chave_super_secreta # Chave secreta para JWT
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy # Garante que o MySQL esteja saudável antes de iniciar o Node (tava conflitando)
     networks:
       - api
 
   mysql:
     image: mysql:8.0
     restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password # Necessário em algumas GUIs do MySQL (DBeaver no meu caso)
     environment:
       MYSQL_DATABASE: linkmark
       MYSQL_USER: linkmark_api
@@ -30,8 +33,17 @@ services:
       MYSQL_ROOT_PASSWORD: linkmark
     volumes:
       - mysql_data:/var/lib/mysql
+    ports:
+      - "3307:3306" # Alterei para 3307 para acessar pela GUI sem conflito
     networks:
       - api
+    # Adicionei o healthcheck para garantir que o MySQL esteja pronto antes de iniciar o Node
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-plinkmark"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
 
 networks:
   api:
