@@ -17,6 +17,17 @@ O projeto é dividido em dois serviços principais dentro da pasta `aplicacoes/`
 
 ---
 
+## 📥 Clonar o Repositório
+
+Primeiro, clone este repositório e entre no diretório do projeto:
+
+```bash
+git clone https://github.com/josevbrito/LinkMark.git
+cd LinkMark
+```
+
+---
+
 ## 🚀 Como Executar o Projeto (Docker Compose)
 
 Você precisa ter o **Docker** e o **Docker Compose** instalados.
