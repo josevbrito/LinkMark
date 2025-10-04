@@ -8,6 +8,7 @@ const state = {
     user: null,               // Dados do usuário logado
     categories: [],           // Lista de categorias
     links: [],                // Lista de links
+    stats: null,              // Estatísticas do usuário
     isLogin: true,            // Modo de autenticação (true = login, false = registro)
     editingCategoryId: null,  // ID da categoria sendo editada
     editingLinkId: null,      // ID do link sendo editado
@@ -58,23 +59,12 @@ const el = {
 
 // ==================== FUNÇÕES UTILITÁRIAS ====================
 
-/**
- * Exibe uma mensagem de alerta temporária
- * @param {HTMLElement} element - Elemento onde mostrar o alerta
- * @param {string} message - Mensagem a exibir
- * @param {boolean} isError - Se é mensagem de erro (true) ou sucesso (false)
- */
 function showAlert(element, message, isError = false) {
     element.textContent = message;
     element.className = `alert show ${isError ? 'alert-error' : 'alert-success'}`;
     setTimeout(() => element.classList.remove('show'), 5000);
 }
 
-/**
- * Escapa HTML para prevenir XSS
- * @param {string} text
- * @returns {string}
- */
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
@@ -82,10 +72,7 @@ function escapeHtml(text) {
 }
 
 /**
- * Realiza requisição para a API
- * @param {string} endpoint - Endpoint da API
- * @param {object} options - Opções da requisição (method, body, etc)
- * @returns {Promise} Promessa com os dados da resposta
+ * Realizando as requisições para a API
  */
 async function apiRequest(endpoint, options = {}) {
     const headers = { 'Content-Type': 'application/json', ...options.headers };
@@ -121,18 +108,10 @@ async function apiRequest(endpoint, options = {}) {
 
 // ==================== FUNÇÕES DE MODAL ====================
 
-/**
- * Abre um modal
- * @param {string} modalId
- */
 function openModal(modalId) {
     document.getElementById(modalId).classList.remove('hidden');
 }
 
-/**
- * Fecha um modal
- * @param {string} modalId
- */
 function closeModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');
 }
@@ -160,10 +139,6 @@ function toggleAuthMode() {
     el.authAlert.classList.remove('show');
 }
 
-/**
- * Processa o formulário de autenticação (login/registro)
- * @param {Event} e
- */
 async function handleAuth(e) {
     e.preventDefault();
     const email = el.authEmail.value.trim();
@@ -197,13 +172,20 @@ async function handleAuth(e) {
 /**
  * Faz logout do usuário
  */
+
+function confirmLogout() {
+    openModal('confirmLogoutModal');
+}
+
 function logout() {
     state.token = null;
     state.user = null;
     state.categories = [];
     state.links = [];
+    state.stats = null;
     el.authEmail.value = '';
     el.authPassword.value = '';
+    closeModal('confirmLogoutModal');
     showAuth();
 }
 
@@ -224,8 +206,58 @@ function showApp() {
     el.appScreen.classList.remove('hidden');
     el.userInfo.classList.remove('hidden');
     el.userEmail.textContent = state.user?.email || '';
+    loadStats();
     loadCategories();
     loadLinks();
+}
+
+// ==================== DASHBOARD ====================
+
+async function loadStats() {
+    try {
+        state.stats = await apiRequest('/stats');
+        renderStats();
+    } catch (error) {
+        console.error('Erro ao carregar estatísticas:', error);
+    }
+}
+
+function renderStats() {
+    if (!state.stats) return;
+    
+    document.getElementById('statCategories').textContent = state.stats.totalCategories;
+    document.getElementById('statLinks').textContent = state.stats.totalLinks;
+    document.getElementById('statRecent').textContent = state.stats.recentLinksCount;
+    
+    const popularCat = state.stats.mostPopularCategory;
+    document.getElementById('statPopular').textContent = popularCat 
+        ? `${popularCat.name} (${popularCat.count})`
+        : '-';
+    
+    const chartDiv = document.getElementById('categoryChart');
+    if (state.stats.linksByCategory.length === 0) {
+        chartDiv.innerHTML = '';
+        return;
+    }
+    
+    const maxCount = Math.max(...state.stats.linksByCategory.map(c => c.count));
+    
+    chartDiv.innerHTML = `
+        <h3 style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.95rem; font-weight: 600;">
+            Links por Categoria
+        </h3>
+        ${state.stats.linksByCategory.map(cat => `
+            <div class="chart-bar">
+                <div class="chart-bar-header">
+                    <span class="chart-bar-label">${escapeHtml(cat.name)}</span>
+                    <span class="chart-bar-value">${cat.count} ${cat.count === 1 ? 'link' : 'links'}</span>
+                </div>
+                <div style="background: rgba(59, 130, 246, 0.1); border-radius: 4px; overflow: hidden;">
+                    <div class="chart-bar-fill" style="width: ${(cat.count / maxCount) * 100}%"></div>
+                </div>
+            </div>
+        `).join('')}
+    `;
 }
 
 // ==================== CATEGORIAS ====================
@@ -238,6 +270,7 @@ async function loadCategories() {
         state.categories = await apiRequest('/categories');
         renderCategories();
         updateCategorySelects();
+        await loadStats();
     } catch (error) {
         showAlert(el.categoryAlert, error.message, true);
     }
@@ -276,7 +309,6 @@ function renderCategories() {
 
 /**
  * Processa o formulário de criar categoria
- * @param {Event} e
  */
 async function handleCategorySubmit(e) {
     e.preventDefault();
@@ -298,8 +330,6 @@ async function handleCategorySubmit(e) {
 
 /**
  * Abre o modal de editar categoria
- * @param {number} id
- * @param {string} name
  */
 function openEditCategory(id, name) {
     state.editingCategoryId = id;
@@ -309,7 +339,6 @@ function openEditCategory(id, name) {
 
 /**
  * Processa o formulário de editar categoria
- * @param {Event} e
  */
 async function handleEditCategory(e) {
     e.preventDefault();
@@ -332,7 +361,6 @@ async function handleEditCategory(e) {
 
 /**
  * Confirma exclusão de uma categoria
- * @param {number} id - ID da categoria a excluir
  */
 function confirmDeleteCategory(id) {
     el.deleteMessage.textContent = 'Excluir esta categoria e todos os seus links?';
@@ -340,7 +368,7 @@ function confirmDeleteCategory(id) {
         try {
             await apiRequest(`/categories/${id}`, { method: 'DELETE' });
             closeModal('confirmDeleteModal');
-            showAlert(el.categoryAlert, 'Categoria excluída! 🗑️');
+            showAlert(el.categoryAlert, 'Categoria excluída!');
             await loadCategories();
             await loadLinks();
         } catch (error) {
@@ -367,7 +395,6 @@ function updateCategorySelects() {
 
 /**
  * Carrega os links do servidor
- * @param {number|null} categoryId - ID da categoria para filtrar (null = todos)
  */
 async function loadLinks(categoryId = null) {
     try {
@@ -419,7 +446,6 @@ function renderLinks() {
 
 /**
  * Processa o formulário de criar link
- * @param {Event} e
  */
 async function handleLinkSubmit(e) {
     e.preventDefault();
@@ -440,6 +466,7 @@ async function handleLinkSubmit(e) {
         
         const filter = el.filterCategory.value;
         await loadLinks(filter || null);
+        await loadStats();
     } catch (error) {
         showAlert(el.linkAlert, error.message, true);
     }
@@ -447,7 +474,6 @@ async function handleLinkSubmit(e) {
 
 /**
  * Abre o modal de editar link
- * @param {number} id
  */
 function openEditLink(id) {
     const link = state.links.find(l => l.id === id);
@@ -461,29 +487,8 @@ function openEditLink(id) {
     openModal('editLinkModal');
 }
 
-
-/**
- * Abre modal de confirmação de logout
- */
-function confirmLogout() {
-    openModal('confirmLogoutModal');
-}
-
-// Faz logout do usuário
-function logout() {
-    state.token = null;
-    state.user = null;
-    state.categories = [];
-    state.links = [];
-    el.authEmail.value = '';
-    el.authPassword.value = '';
-    closeModal('confirmLogoutModal');
-    showAuth();
-}
-
 /**
  * Processa o formulário de editar link
- * @param {Event} e
  */
 async function handleEditLink(e) {
     e.preventDefault();
@@ -511,7 +516,6 @@ async function handleEditLink(e) {
 
 /**
  * Confirma exclusão de um link
- * @param {number} id
  */
 function confirmDeleteLink(id) {
     el.deleteMessage.textContent = 'Tem certeza que deseja excluir este link?';
@@ -519,15 +523,133 @@ function confirmDeleteLink(id) {
         try {
             await apiRequest(`/links/${id}`, { method: 'DELETE' });
             closeModal('confirmDeleteModal');
-            showAlert(el.linkAlert, 'Link excluído! 🗑️');
+            showAlert(el.linkAlert, 'Link excluído!');
             
             const filter = el.filterCategory.value;
             await loadLinks(filter || null);
+            await loadStats();
         } catch (error) {
             showAlert(el.linkAlert, error.message, true);
         }
     };
     openModal('confirmDeleteModal');
+}
+
+// ==================== EXPORTAÇÃO ====================
+
+async function exportToCSV() {
+    try {
+        const data = await apiRequest('/export');
+        
+        if (data.length === 0) {
+            alert('Não há links para exportar.');
+            return;
+        }
+        
+        const headers = ['ID', 'Categoria', 'URL', 'Título', 'Descrição', 'Criado em'];
+        const csvContent = [
+            headers.join(','),
+            ...data.map(row => [
+                row.id,
+                `"${(row.categoria || '').replace(/"/g, '""')}"`,
+                `"${(row.url || '').replace(/"/g, '""')}"`,
+                `"${(row.titulo || '').replace(/"/g, '""')}"`,
+                `"${(row.descricao || '').replace(/"/g, '""')}"`,
+                `"${row.criado_em}"`
+            ].join(','))
+        ].join('\n');
+        
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `linkmark_export_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showAlert(el.linkAlert, 'Links exportados em CSV com sucesso!');
+    } catch (error) {
+        showAlert(el.linkAlert, 'Erro ao exportar: ' + error.message, true);
+    }
+}
+
+async function exportToExcel() {
+    try {
+        const data = await apiRequest('/export');
+        
+        if (data.length === 0) {
+            alert('Não há links para exportar.');
+            return;
+        }
+        
+        let html = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+            <head>
+                <meta charset="UTF-8">
+                <!--[if gte mso 9]>
+                <xml>
+                    <x:ExcelWorkbook>
+                        <x:ExcelWorksheets>
+                            <x:ExcelWorksheet>
+                                <x:Name>Links</x:Name>
+                                <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
+                            </x:ExcelWorksheet>
+                        </x:ExcelWorksheets>
+                    </x:ExcelWorkbook>
+                </xml>
+                <![endif]-->
+            </head>
+            <body>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Categoria</th>
+                            <th>URL</th>
+                            <th>Título</th>
+                            <th>Descrição</th>
+                            <th>Criado em</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        data.forEach(row => {
+            html += `
+                <tr>
+                    <td>${row.id}</td>
+                    <td>${escapeHtml(row.categoria || '')}</td>
+                    <td>${escapeHtml(row.url || '')}</td>
+                    <td>${escapeHtml(row.titulo || '')}</td>
+                    <td>${escapeHtml(row.descricao || '')}</td>
+                    <td>${row.criado_em}</td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `;
+        
+        const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `linkmark_export_${new Date().toISOString().split('T')[0]}.xls`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showAlert(el.linkAlert, 'Links exportados em Excel com sucesso!');
+    } catch (error) {
+        showAlert(el.linkAlert, 'Erro ao exportar: ' + error.message, true);
+    }
 }
 
 // ==================== EVENT LISTENERS ====================
@@ -541,9 +663,12 @@ el.authToggleLink.addEventListener('click', (e) => {
 
 // Logout
 el.logoutBtn.addEventListener('click', confirmLogout);
-
 document.getElementById('confirmLogoutBtn').addEventListener('click', logout);
 
+
+// Exportação
+document.getElementById('exportCsvBtn').addEventListener('click', exportToCSV);
+document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
 
 // Categorias
 el.categoryForm.addEventListener('submit', handleCategorySubmit);

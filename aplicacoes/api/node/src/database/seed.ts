@@ -41,7 +41,7 @@ export async function runSeed(pool: Pool) {
 
         const [cat2Result] = await pool.query(
             'INSERT INTO categories (user_id, name) VALUES (?, ?)',
-            [userId, 'Leitura Tarde']
+            [userId, 'Leitura da Tarde']
         );
         const catId2 = (cat2Result as any).insertId;
 
@@ -58,7 +58,17 @@ export async function runSeed(pool: Pool) {
         
         await pool.query(
             'INSERT INTO links (user_id, category_id, url, title, description) VALUES (?, ?, ?, ?, ?)',
-            [userId, catId2, 'https://dynamos.tech/', 'Dynamos Tecnologia', 'Site da empresa que está aplicando o teste.']
+            [userId, catId1, 'https://josevbrito.tech/', 'José Brito', 'Meu portfólio.']
+        );
+
+        await pool.query(
+            'INSERT INTO links (user_id, category_id, url, title, description) VALUES (?, ?, ?, ?, ?)',
+            [userId, catId2, 'https://www.oreilly.com/library/view/learning-javascript-design/9781449334840/', 'Learning JavaScript Design Patterns', 'Livro sobre padrões de projeto em JavaScript.']
+        );
+
+        await pool.query(
+            'INSERT INTO links (user_id, category_id, url, title, description) VALUES (?, ?, ?, ?, ?)',
+            [userId, catId2, 'https://refactoring.guru/design-patterns/catalog', 'Design Patterns', 'Catálogo de padrões de projeto.']
         );
 
         console.log('[INFO] O seeding do banco de dados foi concluído com sucesso.');
