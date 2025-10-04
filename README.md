@@ -1,66 +1,179 @@
-# LinkMark — Esqueleto para Teste Técnico Fullstack
+# LinkMark — Aplicação Fullstack de Organização de Links
 
-Este repositório fornece um ponto de partida mínimo para um exercício fullstack composto por:
+Este repositório contém o projeto **LinkMark**, uma aplicação completa de organização de links, composta por uma **Aplicação Web (Frontend)** em PHP, HTML, CSS e JavaScript puros, e uma **API (Backend)** em Node.js com TypeScript e Express.
 
-- Aplicação Web (PHP + HTML + CSS + JS puros)
-- Aplicação de API (escolha UMA):
-  - PHP (puro, Nginx + PHP-FPM), ou
-  - Node + TypeScript (Express)
+O objetivo é demonstrar a comunicação fullstack, onde a aplicação Web consome os serviços da API.
 
-Você pode rodar qualquer uma das APIs; a aplicação Web já está configurada para chamar a API em http://localhost:8000.
+---
 
-## Pré-requisitos
+## 🏗️ Arquitetura do Projeto
 
-- Docker e Docker Compose
+O projeto é dividido em dois serviços principais dentro da pasta `aplicacoes/`:
 
-## Pastas
+| Serviço | Tecnologia | Porta (Docker Host) | URL Padrão | Notas |
+|---------|-----------|---------------------|------------|-------|
+| **Web** | PHP Puro (Nginx) | 8080 | `http://localhost:8080` | Frontend em PHP, HTML, CSS e JS puros. |
+| **API** | Node.js + Express + TS | 8000 | `http://localhost:8000` | Backend robusto, configurado para MySQL. |
 
-- aplicacoes/web → Aplicação Web em PHP puro
-- aplicacoes/api/php → API em PHP (puro)
-- aplicacoes/api/node → API em Node + TypeScript
+---
 
-## Como executar
+## 🚀 Como Executar o Projeto (Docker Compose)
 
-Você pode rodar a Web e uma das APIs em terminais separados. A Web espera a API em http://localhost:8000.
+Você precisa ter o **Docker** e o **Docker Compose** instalados.
 
-### Opção A: API em PHP
+O fluxo de execução recomendado é iniciar a API primeiro e, em seguida, a Web.
 
-Terminal 1:
+### 1. Iniciar a API (Backend)
 
-cd aplicacoes/api/php
-docker compose -f compose.yaml up --build
+Navegue até o diretório da API e use o Docker Compose:
 
-Terminal 2:
-
-cd aplicacoes/web
-docker compose -f compose.yaml up --build
-
-- Web: http://localhost:80
-- API (PHP): http://localhost:8000
-
-### Opção B: API em Node + TypeScript
-
-Terminal 1:
-
+```bash
+# Terminal 1
 cd aplicacoes/api/node
+docker compose -f compose.yaml down -v  # Opcional: Para limpar containers e volumes anteriores
 docker compose -f compose.yaml up --build
+```
 
-Terminal 2:
+**Status da API:** A API estará disponível em `http://localhost:8000`.
 
+**Saúde da API:** Você pode verificar a saúde da API em `http://localhost:8000/health`.
+
+O container instala as dependências Node e inicia o modo de desenvolvimento (`ts-node-dev`).
+
+**Exemplo de saída esperada no terminal:**
+
+```
+node-1   | [INFO] Conexão com o banco de dados estabelecida.
+node-1   | [INFO] Executando migrações...
+node-1   | [INFO] Migração do banco de dados (tabelas) concluída com sucesso.
+node-1   | [INFO] Executando seeding...
+node-1   | [INFO] Usuário de teste criado com ID: 1 (Email: teste@linkmark.com / Senha: password)
+node-1   | [INFO] O seeding do banco de dados foi concluído com sucesso.
+node-1   | [INFO] API Node está em http://localhost:3000 (exposto em http://localhost:8000)
+node-1   | [INFO] Conexão com o banco de dados bem-sucedida. Aplicação pronta.
+```
+
+### 2. Iniciar a Aplicação Web (Frontend)
+
+Em um terminal separado, inicie a aplicação Web:
+
+```bash
+# Terminal 2
 cd aplicacoes/web
+docker compose -f compose.yaml down -v  # Opcional: Para limpar containers e volumes anteriores
 docker compose -f compose.yaml up --build
+```
 
-- Web: http://localhost:80
-- API (Node): http://localhost:8000
+**Aplicação Web:** Acesse `http://localhost:8080` no seu navegador.
 
-## Endpoints (ambas as opções de API)
+A Web está pré-configurada para buscar a API em `http://localhost:8000`.
 
-- GET /health → { success, data: { status, time } }
+### 3. Acessar a Aplicação
 
-As respostas usam o mesmo envelope simples: { success, data?, error? }.
+Após a inicialização completa dos dois serviços, a aplicação estará rodando em **`http://localhost:8080`**.
 
-O CORS é configurado para permitir a origem da Web (padrão http://localhost:80). Você pode alterar isso editando a variável FRONTEND_URL no arquivo compose da API.
+Você pode:
+- **Criar um novo usuário** através da interface de registro, ou
+- **Entrar com o usuário de teste** criado automaticamente via seed:
+  - **Email:** `teste@linkmark.com`
+  - **Senha:** `password`
 
-## Notas para candidatos
+---
 
-- Você também pode reestruturar os projetos (frameworks permitidos) como preferir, desde que atenda aos requisitos de alto nível.
+
+## 📁 Estrutura de Pastas
+
+```
+LinkMark/
+├── aplicacoes/
+│   ├── api/
+│   │   └── node/
+│   │       ├── compose.yaml
+│   │       └── src/
+│   │           ├── database/
+│   │           │   ├── database.ts
+│   │           │   ├── migration.sql
+│   │           │   └── seed.ts
+│   │           ├── server/
+│   │           │   ├── app.ts
+│   │           │   ├── middlewares.ts
+│   │           │   └── routes/
+│   │           │       ├── auth.ts
+│   │           │       ├── categories.ts
+│   │           │       ├── export.ts
+│   │           │       ├── links.ts
+│   │           │       └── stats.ts
+│   │           ├── server.ts
+│   │           ├── tsconfig.json
+│   │           └── package.json
+│   └── web/
+│       ├── compose.yaml
+│       ├── nginx/
+│       │   └── default.conf
+│       └── src/
+│           ├── index.php
+│           └── assets/
+│               ├── css/
+│               │   └── app.css
+│               └── js/
+│                   └── app.js
+└── README.md
+```
+
+---
+
+## 🌐 Endpoints da API
+
+A API foi desenvolvida para usar um envelope simples de resposta: `{ success, data?, error? }`.
+
+### Geral
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/health` | Checagem de saúde da API. |
+
+### Auth
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/auth/register` | Cria um novo usuário. |
+| `POST` | `/auth/login` | Autentica um usuário e retorna um JWT. |
+
+### Categories (Requer JWT)
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/categories` | Lista todas as categorias do usuário. |
+| `POST` | `/categories` | Cria uma nova categoria. |
+| `PUT` | `/categories/:id` | Atualiza uma categoria. |
+| `DELETE` | `/categories/:id` | Exclui uma categoria e seus links associados. |
+
+### Links (Requer JWT)
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/links` | Lista todos os links. |
+| `POST` | `/links` | Cria um novo link. |
+| `PUT` | `/links/:id` | Atualiza um link existente. |
+| `DELETE` | `/links/:id` | Exclui um link. |
+
+### Stats & Export (Requer JWT)
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/stats` | Retorna estatísticas de links por categoria e links recentes. |
+| `GET` | `/export` | Exporta todos os dados em formato tabular. |
+
+---
+
+## ⚙️ Configuração e Variáveis de Ambiente
+
+As configurações de ambiente podem ser ajustadas nos respectivos arquivos `compose.yaml`:
+
+| Variável | Padrão | Arquivo | Descrição |
+|----------|--------|---------|-----------|
+| `API_URL` | `http://localhost:8000` | `aplicacoes/web/compose.yaml` | URL onde o Frontend busca a API. |
+| `FRONTEND_URL` | `http://localhost:8080` | `aplicacoes/api/node/compose.yaml` | Origem permitida para CORS na API (Web). |
+| `DB_*` | (disponíveis no `compose.yaml`) | `aplicacoes/api/node/compose.yaml` | Credenciais de conexão com o MySQL. |
+
+---
