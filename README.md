@@ -80,6 +80,30 @@ Você pode:
 
 ---
 
+## 🗄️ Acesso ao Banco de Dados
+
+O banco de dados MySQL está exposto na porta **3307** do host e pode ser acessado através de ferramentas GUI como **DBeaver**, **HeidiSQL**, **MySQL Workbench**, entre outras.
+
+### Credenciais de Conexão:
+
+| Parâmetro | Valor |
+|-----------|-------|
+| **Host** | `localhost` |
+| **Porta** | `3307` |
+| **Banco de Dados** | `linkmark` |
+| **Usuário** | `linkmark_api` |
+| **Senha** | `linkmark` |
+
+### Exemplo de Configuração no DBeaver/HeidiSQL:
+
+```
+Host: localhost
+Port: 3307
+Database: linkmark
+Username: linkmark_api
+Password: linkmark
+
+---
 
 ## 📁 Estrutura de Pastas
 
@@ -152,7 +176,7 @@ A API foi desenvolvida para usar um envelope simples de resposta: `{ success, da
 
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| `GET` | `/links` | Lista todos os links. |
+| `GET` | `/links` | Lista todos os links (com filtros opcionais). |
 | `POST` | `/links` | Cria um novo link. |
 | `PUT` | `/links/:id` | Atualiza um link existente. |
 | `DELETE` | `/links/:id` | Exclui um link. |
@@ -174,6 +198,13 @@ As configurações de ambiente podem ser ajustadas nos respectivos arquivos `com
 |----------|--------|---------|-----------|
 | `API_URL` | `http://localhost:8000` | `aplicacoes/web/compose.yaml` | URL onde o Frontend busca a API. |
 | `FRONTEND_URL` | `http://localhost:8080` | `aplicacoes/api/node/compose.yaml` | Origem permitida para CORS na API (Web). |
-| `DB_*` | (disponíveis no `compose.yaml`) | `aplicacoes/api/node/compose.yaml` | Credenciais de conexão com o MySQL. |
+| `DB_*` | (ver `compose.yaml`) | `aplicacoes/api/node/compose.yaml` | Credenciais de conexão com o MySQL. |
 
 ---
+
+## 📝 Notas Adicionais
+
+- O projeto utiliza **TypeScript** no backend para maior segurança de tipos.
+- O frontend é desenvolvido em **PHP puro** sem frameworks, demonstrando conhecimento fundamental de desenvolvimento web.
+- A aplicação implementa **autenticação JWT** para segurança das rotas.
+- O banco de dados **MySQL** é provisionado automaticamente via Docker com migrações e seeds.
